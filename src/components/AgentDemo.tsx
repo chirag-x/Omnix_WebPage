@@ -55,16 +55,45 @@ export function AgentDemo() {
   }, [phase, selected]);
 
   const start = () => {
+    window.speechSynthesis.cancel();
     setActive(0);
     setPhase("running");
   };
 
   const reset = () => {
+    window.speechSynthesis.cancel();
     setActive(0);
     setPhase("idle");
     setStreamEvents([]);
     stream.reset();
   };
+
+  // Web Speech API integration
+  useEffect(() => {
+    if (!("speechSynthesis" in window)) return;
+    
+    const speak = (text: string) => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    };
+
+    if (phase === "running" && active < selected.steps.length) {
+      const step = selected.steps[active];
+      if (step) {
+        window.speechSynthesis.cancel();
+        speak(step.detail);
+      }
+    } else if (phase === "done") {
+      window.speechSynthesis.cancel();
+      speak(selected.outcome.join(". "));
+    }
+    
+    return () => {
+      // Don't cancel on unmount here or it will interrupt itself when component rerenders
+    }
+  }, [active, phase, selected]);
 
   return (
     <Section

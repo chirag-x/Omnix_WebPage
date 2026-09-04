@@ -25,6 +25,11 @@ export function DemoVideo() {
         <div className="lg:col-span-8">
           <div className="glass relative overflow-hidden rounded-2xl p-1">
             <div className="relative aspect-video w-full overflow-hidden rounded-[14px] border border-white/5 bg-gradient-to-b from-ink-900 to-ink-950">
+              <img
+                src="/thumbnail.jpg"
+                alt="Omnix Demo Thumbnail"
+                className="absolute inset-0 h-full w-full object-cover opacity-60"
+              />
               <div
                 aria-hidden
                 className="absolute inset-0 grid-bg-fine opacity-30"

@@ -14,6 +14,27 @@ export function Hero() {
   const reduced = useReducedMotion();
   const [stage, setStage] = useState(0);
   const [exampleIndex, setExampleIndex] = useState(0);
+  
+  const [email, setEmail] = useState("");
+  const [waitlistStatus, setWaitlistStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  const handleWaitlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setWaitlistStatus("loading");
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error();
+      setWaitlistStatus("success");
+      setEmail("");
+    } catch {
+      setWaitlistStatus("error");
+    }
+  };
 
   useEffect(() => {
     if (reduced) return;
@@ -128,6 +149,39 @@ export function Hero() {
             <Github className="h-4 w-4" />
             GitHub
           </a>
+        </motion.div>
+
+        {/* Waitlist Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.35 }}
+          className="mt-8 max-w-md"
+        >
+          <form onSubmit={handleWaitlist} className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email to join the waitlist..."
+              className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white placeholder-white/40 focus:border-accent-400 focus:outline-none focus:ring-1 focus:ring-accent-400 transition-all"
+              required
+              disabled={waitlistStatus === "loading" || waitlistStatus === "success"}
+            />
+            <Button
+              type="submit"
+              disabled={waitlistStatus === "loading" || waitlistStatus === "success"}
+              className="h-12 w-full sm:w-auto px-6 whitespace-nowrap"
+            >
+              {waitlistStatus === "loading" ? "Joining..." : waitlistStatus === "success" ? "Joined!" : "Join Waitlist"}
+            </Button>
+          </form>
+          {waitlistStatus === "success" && (
+            <p className="mt-3 text-sm text-accent-400 font-medium">You're on the list! We'll be in touch soon.</p>
+          )}
+          {waitlistStatus === "error" && (
+            <p className="mt-3 text-sm text-red-400">Something went wrong. Please try again.</p>
+          )}
         </motion.div>
 
         {/* Live pipeline visualization */}
